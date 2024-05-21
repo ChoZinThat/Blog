@@ -73,9 +73,15 @@ class ArticleController extends Controller
     public function edit($id)
     {
         $article = Article::find($id);
-        $categories = Category::all();
 
-        return view('articles.update',['article' => $article, 'categories' => $categories]);
+        if(Gate::allows('update-article', $article)) {
+            $categories = Category::all();
+
+            return view('articles.update',['article' => $article, 'categories' => $categories]);
+        };
+
+        return back()->with('info', "Unauthorize to update!");
+
     }
 
     public function update($id)

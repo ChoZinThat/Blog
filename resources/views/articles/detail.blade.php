@@ -36,6 +36,8 @@
                         <a href="{{ url("/articles/delete/$article->id")}}" class="btn btn-sm btn-outline-danger">
                             Delete
                         </a>
+                    @endcan
+                    @can('update-article', $article)
                         <a href="{{ url("/articles/edit/$article->id")}}" class="btn btn-sm btn-outline-success">
                             Edit
                         </a>

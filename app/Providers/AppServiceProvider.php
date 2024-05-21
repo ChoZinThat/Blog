@@ -31,5 +31,9 @@ class AppServiceProvider extends ServiceProvider
             return $user->id == $comment->user_id
                 or $user->id == $comment->article->user_id;
         });
+
+        Gate::define('update-article', function($user, $article){
+            return $user->id == $article->user_id;
+        });
     }
 }
