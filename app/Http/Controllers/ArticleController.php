@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class ArticleController extends Controller
 {
@@ -13,6 +14,7 @@ class ArticleController extends Controller
     {
         $this->middleware('auth')->except(['index','detail']);
     }
+
     public function index()
     {
         $data = Article::latest()->paginate(5);
@@ -36,11 +38,13 @@ class ArticleController extends Controller
 
         if(Gate::allows('delete-article', $article)) {
             $article->delete();
+            $this->deletePhoto($article->photo, $article->video);
             return redirect("/articles")->with("info", "Deleted an article");
         }
 
         return back()->with('info', "Unauthorize to delete");
     }
+
 
     public function add()
     {
@@ -52,6 +56,7 @@ class ArticleController extends Controller
     {
         $validator = validator(request()->all(), [
             "title" => "required",
+            "photo" => "extensions:jpg,bmp,png,mp4",
             "body" => "required",
             "category_id" => "required",
         ]);
@@ -65,6 +70,20 @@ class ArticleController extends Controller
         $article->body = request()->body;
         $article->category_id = request()->category_id;
         $article->user_id = auth()->id();
+        if(request()->hasFile('photo'))
+        {
+            $photoName = $this->storeFile(request()->file('photo'));
+            $extension = request()->file('photo')->getClientOriginalExtension();
+
+            if($extension != "mp4")
+            {
+                $article->photo = $photoName;
+            }
+            else
+            {
+                $article->video = $photoName ;
+            }
+        };
         $article->save();
 
         return redirect('/articles');
@@ -81,13 +100,13 @@ class ArticleController extends Controller
         };
 
         return back()->with('info', "Unauthorize to update!");
-
     }
 
     public function update($id)
     {
         $validator = validator(request()->all(), [
             "title" => "required",
+            "photo" => "extensions:jpg,bmp,png,mp4",
             "body" => "required",
             "category_id" => "required",
         ]);
@@ -101,9 +120,58 @@ class ArticleController extends Controller
         $article->body = request()->body;
         $article->category_id = request()->category_id;
         $article->user_id = auth()->id();
-        $article->save();
 
+        if(request()->hasFile('photo'))
+        {
+            $this->deletePhoto($article->photo, $article->video);
+            $photoName = $this->storeFile(request()->file('photo'));
+            $extension = request()->file('photo')->getClientOriginalExtension();
+
+            if($extension != "mp4")
+            {
+                $article->photo = $photoName ;
+                $article->video = null;
+            }
+            else
+            {
+                $article->video = $photoName;
+                $article->photo = null;
+            }
+        };
+
+        $article->save();
         return redirect("/articles/detail/$id");
 
+    }
+
+    public function storeFile($file)
+    {
+        $fileName = $file->hashName();
+        $extension = $file->getClientOriginalExtension();
+
+        if($extension != "mp4")
+        {
+            Storage::putFileAs('public/photos', $file, $fileName);
+        }
+        else
+        {
+            Storage::putFileAs('public/videos', $file, $fileName);
+        }
+
+        return $fileName;
+    }
+
+    public function deletePhoto($photo, $video)
+    {
+        if($video){
+            $filePath = "public/videos/".$video;
+        }elseif($photo){
+            $filePath = "public/photos/".$photo;
+        }
+
+        if(Storage::exists($filePath)){
+            Storage::delete($filePath);
+        }
+        return 0;
     }
 }

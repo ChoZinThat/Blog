@@ -9,9 +9,11 @@
                 @endforeach
             </div>
         @endif
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             @csrf
             <input type="text" name="title" placeholder="Title"
+                class="form-control mb-2">
+            <input type="file" name="photo"
                 class="form-control mb-2">
             <textarea name="body" placeholder="Body"
                 class="form-control mb-2"></textarea>

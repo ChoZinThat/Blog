@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container" style="max-width: 800px">
+    <div class="container" style="max-width: 650px">
         @if (session('info'))
             <div class="alert alert-info">
                 {{ session('info') }}
@@ -16,6 +16,16 @@
             </div>
         @endif
         <div class="card mb-2 border-primary">
+            @if ($article->video)
+                <video style="height: 250px" controls>
+                    <source src="{{ asset('storage/videos/'. $article->video)}}" type="video/mp4">
+                </video>
+            @elseif($article->photo)
+                <img src="{{ asset('storage/photos/'. $article->photo)}}" alt="Photo"
+                    class="card-img-top" style="height: 250px"
+                >
+            @endif
+
             <div class="card-body">
                 <h3 class="card-title">
                     {{ $article->title }}
@@ -26,7 +36,7 @@
                     </b>
                     <b>Category: </b>
                     {{ $article->category->name}}
-                    {{ $article->created_at }}
+                    {{ $article->created_at->diffForHumans() }}
                 </div>
                 <div class="mb-2">
                     {{ $article->body }}
