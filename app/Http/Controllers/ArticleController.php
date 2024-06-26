@@ -23,6 +23,15 @@ class ArticleController extends Controller
         ]);
     }
 
+    public function myPost()
+    {
+        $id = auth()->id();
+        $data = Article::where('user_id', $id)->latest()->paginate(5);
+        return view('articles.index', [
+            'articles' => $data
+        ]);
+    }
+
     public function detail($id)
     {
         $article = Article::find($id);
@@ -174,4 +183,5 @@ class ArticleController extends Controller
         }
         return 0;
     }
+
 }

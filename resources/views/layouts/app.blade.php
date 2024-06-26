@@ -36,6 +36,11 @@
                                 +New Article
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ url("/articles/my-post")}}" class="nav-link text-success">
+                                My Posts
+                            </a>
+                        </li>
                        @endauth
                     </ul>
 

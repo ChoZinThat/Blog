@@ -7,6 +7,7 @@ use App\Http\Controllers\CommentController;
 use App\Models\Article;
 
 Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/my-post', [ArticleController::class, 'myPost']);
 
 Route::get('/articles/detail/{id}', [ArticleController::class, 'detail']);
 
